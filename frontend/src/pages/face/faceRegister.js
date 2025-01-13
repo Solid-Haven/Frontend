@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../components/context/UserContext"; // Context 사용
 import "../../styles/faceRegister.css";
 
 const FaceRegister = () => {
     const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 상태
     const [message, setMessage] = useState(""); // 결과 메시지
-    const location = useLocation(); // 전달받은 state 읽기
+    const { userId } = useUser(); // Context에서 userId 가져오기
     const navigate = useNavigate(); // 페이지 이동 훅
-
-    const userId = location.state?.userId || ""; // UserLogin에서 전달된 userId
 
     // 파일 선택 핸들러
     const handleFileChange = (event) => {
@@ -24,6 +23,7 @@ const FaceRegister = () => {
 
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("user_id", userId); // 사용자 ID 추가
 
         try {
             const response = await fetch("/face/face-register-photo", {
@@ -36,7 +36,7 @@ const FaceRegister = () => {
             if (response.ok && data.success) {
                 setMessage("얼굴 등록이 완료되었습니다!");
                 // 성공 시 MaskingSelection으로 이동
-                navigate("/maskingselection", { state: { userId } });
+                navigate("/maskingselection");
             } else {
                 setMessage(data.message || "얼굴 등록에 실패했습니다.");
             }
@@ -52,7 +52,7 @@ const FaceRegister = () => {
             const response = await fetch("/face/face-register-realtime", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: 2 }), // 사용자 ID 전송 (예시)
+                body: JSON.stringify({ user_id: userId }), // 사용자 ID 전송
             });
 
             const data = await response.json();
@@ -60,7 +60,7 @@ const FaceRegister = () => {
             if (response.ok && data.success) {
                 setMessage("실시간 얼굴 등록이 완료되었습니다!");
                 // 성공 시 MaskingSelection으로 이동
-                navigate("/maskingselection", { state: { userId } });
+                navigate("/maskingselection");
 
             } else {
                 setMessage(data.message || "실시간 등록에 실패했습니다.");

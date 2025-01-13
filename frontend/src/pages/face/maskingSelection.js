@@ -1,14 +1,14 @@
 import React, {useState} from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../components/context/UserContext"; // Context 사용
 import "../../styles/maskingSelection.css";
 
 const MaskingSelection = () => {
     const [faceMasking, setFaceMasking] = useState(false);  // 얼굴 마스킹 여부
     const [bodyMasking, setBodyMasking] = useState(false);  // 신체 마스킹 여부
-    const location = useLocation(); // 전달받은 state 읽기 
+    const { userId } = useUser(); // Context에서 userId 가져오기
     const navigate = useNavigate();
 
-    const userId = location.state?.userId || "";    // FaceRegister에서 전달받은 userId
 
     const handleSaveSelection = async () => {
         try {
@@ -27,7 +27,7 @@ const MaskingSelection = () => {
             const data = await response.json();
 
             if(response.ok && data.success) {
-                navigate("/dashboard", {state: {userId}});
+                navigate("/dashboard");
             } else {
                 alert(data.message || "마스킹 저장에 실패했습니다.");
             }

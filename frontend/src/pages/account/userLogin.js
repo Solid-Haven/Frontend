@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // useLocation으로 전달받은 state 읽기
+import { useNavigate} from "react-router-dom"; // useLocation으로 전달받은 state 읽기
+import { useUser } from "../../components/context/UserContext"; // UserContext 사용
 import "../../styles/login.css";
 
 const UserLogin = () => {
     const [email, setEmail] = useState(""); //
     const [password, setPassword] = useState(""); // 비밀번호 입력 값 이메일 입력 값
     const [errorMessage, setErrorMessage] = useState(""); // 오류 메시지 상태
+    const { setUserId } = useUser(); // Context에서 setUserId 가져오기
     const navigate = useNavigate(); // 페이지 이동 훅
-    const location = useLocation(); // 전달받은 state 읽기
-
-    const familyCode = location.state?.familyCode || ""; // familyMain에서 전달받은 familyCode
 
     const handleLogin = async () => {
         try {
@@ -19,7 +18,6 @@ const UserLogin = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    family_code: familyCode,
                     email,
                     password,
                 }),
@@ -29,6 +27,8 @@ const UserLogin = () => {
 
             if (response.ok && data.success) {
                 const { user_id, is_face_registered } = data.user; // ID와 상태 받기
+                setUserId(user_id); // Context와 로컬 스토리지에 user_id 저장
+
     
                 // 상태에 따라 페이지 이동
                 if (is_face_registered) {
@@ -47,7 +47,7 @@ const UserLogin = () => {
 
     const handleRegister = () => {
         // 회원가입 페이지로 이동
-        navigate("/userregister", { state: { familyCode } });
+        navigate("/userregister");
     };
 
 
@@ -85,11 +85,6 @@ const UserLogin = () => {
                     회원가입
                 </button>
             </div>
-
-            {/* 가족 코드 변경 안내 메시지 */}
-            <p className="info-message">
-                가족 코드를 바꾸고 싶으면 처음 페이지로 돌아가주세요
-            </p>
         </div>
     );
 };

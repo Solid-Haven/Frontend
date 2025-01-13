@@ -5,8 +5,6 @@ const UserRegister = () => {
     const [username, setUsername] = useState(""); // 사용자 이름
     const [email, setEmail] = useState(""); // 사용자 이메일
     const [password, setPassword] = useState(""); // 사용자 비밀번호
-    const [familyCode, setFamilyCode] = useState(""); // 가족 코드
-    const [familyPassword, setFamilyPassword] = useState(""); // 가족 비밀번호
     const [errorMessage, setErrorMessage] = useState(""); // 오류 메시지
     const navigate = useNavigate(); // 페이지 이동 훅
 
@@ -20,9 +18,7 @@ const UserRegister = () => {
                 body: JSON.stringify({
                     username,
                     email,
-                    password,
-                    family_code: familyCode,
-                    family_password: familyPassword,
+                    password
                 }), // JSON 형식으로 데이터 전송
             });
 
@@ -30,7 +26,7 @@ const UserRegister = () => {
 
             if (response.ok && data.success) {
                 alert("회원가입이 완료되었습니다!");
-                navigate("/userlogin", { state: { familyCode: data.family_code } }); // familyCode를 전달
+                navigate("/userlogin");
             } else {
                 setErrorMessage(data.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
             }
@@ -43,26 +39,6 @@ const UserRegister = () => {
     return (
         <div className="register-container">
             <h1>사용자 회원가입</h1>
-            <div className="form-group">
-                <label htmlFor="family-code">가족 코드</label>
-                <input
-                    type="text"
-                    id="family-code"
-                    placeholder="가족 코드를 입력하세요"
-                    value={familyCode}
-                    onChange={(e) => setFamilyCode(e.target.value)}
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="family-password">가족 비밀번호</label>
-                <input
-                    type="password"
-                    id="family-password"
-                    placeholder="가족 비밀번호를 입력하세요"
-                    value={familyPassword}
-                    onChange={(e) => setFamilyPassword(e.target.value)}
-                />
-            </div>
 
             <div className="form-group">
                 <label htmlFor="username">사용자 이름</label>
