@@ -17,8 +17,8 @@ const Dashboard = () => {
         <div className="dashboard-container">
             <h1>대시보드</h1>
             <div className="button-group">
-                <button onClick={() => navigate("/videolist")} className="button">
-                    영상 리스트
+                <button onClick={() => navigate("/videodashboard")} className="button">
+                    영상 관리
                 </button>
                 <button onClick={() => navigate("/mypage")} className="button">
                     마이 페이지

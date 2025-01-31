@@ -2,8 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./components/context/UserContext"; // UserContext import
 import { UserLogin, UserRegister, AccountMain } from "./pages"; // account 폴더에서 한 번에 가져오기
-import { FaceRegister, MaskingSelection } from "./pages"
-import { Dashboard, VideoList, MyPage } from "./pages"
+import { FaceRegister, MaskingSelection } from "./pages";
+import { Dashboard, MyPage } from "./pages";
+import { VideoDashboard, VideoList, VideoUpload, VideoPlayer } from "./pages"; 
 
 const App = () => {
     return (
@@ -21,8 +22,13 @@ const App = () => {
 
                     {/* 대시보드 */}
                     <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/videolist" element={<VideoList />} />
                     <Route path="/mypage" element={<MyPage />} />
+
+                    {/* ✅ 비디오 관련 페이지 */}
+                    <Route path="/videodashboard" element={<VideoDashboard />} />
+                    <Route path="/videolist" element={<VideoList />} />
+                    <Route path="/videoupload" element={<VideoUpload />} />
+                    <Route path="/videos/:videoId" element={<VideoPlayer />} />
                 </Routes>
             </Router>
         </UserProvider>

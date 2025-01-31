@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import "../../styles/modal.css"; // 동일한 CSS 파일 사용
+import "../../styles/modal.css";
 
 const FamilyRegisterModal = ({ onClose }) => {
-    const [familyName, setFamilyName] = useState("");
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -10,13 +10,13 @@ const FamilyRegisterModal = ({ onClose }) => {
 
     const handleRegister = async () => {
         try {
-            const response = await fetch("/account/family-register", {
+            const response = await fetch("/families/register/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    family_name: familyName,
+                    username,
                     email,
                     password,
                 }),
@@ -24,11 +24,11 @@ const FamilyRegisterModal = ({ onClose }) => {
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
-                setFamilyCode(data.family_code || "코드 생성 실패");
+            if (response.ok) {
+                setFamilyCode(data.family_code || "가족 코드 생성 실패");
                 setMessage("가족 회원가입이 완료되었습니다!");
             } else {
-                setMessage(data.message || "회원가입에 실패했습니다.");
+                setMessage(data.message || "이미 존재하는 가족 이메일입니다.");
             }
         } catch (error) {
             console.error("가족 회원가입 오류:", error);
@@ -45,8 +45,8 @@ const FamilyRegisterModal = ({ onClose }) => {
                         <input
                             type="text"
                             placeholder="가족 이름을 입력하세요"
-                            value={familyName}
-                            onChange={(e) => setFamilyName(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
                         <input
                             type="email"
@@ -56,7 +56,7 @@ const FamilyRegisterModal = ({ onClose }) => {
                         />
                         <input
                             type="password"
-                            placeholder="가족 비밀번호를 입력하세요"
+                            placeholder="비밀번호를 입력하세요"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />

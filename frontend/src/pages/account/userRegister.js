@@ -10,7 +10,7 @@ const UserRegister = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch("/account/user-register", {
+            const response = await fetch("/users/register/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -24,11 +24,21 @@ const UserRegister = () => {
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            if (response.ok) {
                 alert("회원가입이 완료되었습니다!");
-                navigate("/userlogin");
+                navigate("/userlogin"); 
             } else {
-                setErrorMessage(data.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
+                if (response.status === 400) {
+                    if (data.message.includes("이미 존재하는 사용자")) {
+                        setErrorMessage("이미 가입된 이메일입니다.");
+                    } else if (data.message.includes("유효하지 않은 이메일 형식")) {
+                        setErrorMessage("올바른 이메일 형식이 아닙니다.");
+                    } else {
+                        setErrorMessage(data.message || "회원가입에 실패했습니다.");
+                    }
+                } else {
+                    setErrorMessage(data.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
+                }
             }
         } catch (error) {
             console.error("API 호출 오류:", error);

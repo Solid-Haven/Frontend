@@ -1,73 +1,113 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../../components/context/UserContext"; // Context 사용
+import { useNavigate, useLocation } from "react-router-dom";
+import { useUser } from "../../components/context/UserContext";
 import "../../styles/faceRegister.css";
 
 const FaceRegister = () => {
-    const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 상태
-    const [message, setMessage] = useState(""); // 결과 메시지
-    const { userId } = useUser(); // Context에서 userId 가져오기
-    const navigate = useNavigate(); // 페이지 이동 훅
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [message, setMessage] = useState("");
+    const { token, logout } = useUser();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // ✅ MyPage에서 실행된 경우를 확인
+    const isFromMyPage = location.state?.fromMyPage || false;
 
     // 파일 선택 핸들러
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
     };
 
-    // 사진 등록 요청
+    // 얼굴 사진 업로드 요청
     const handleFileUpload = async () => {
         if (!selectedFile) {
-            alert("파일을 선택해주세요!");
+            alert("사진 파일을 선택해주세요!");
             return;
         }
 
         const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("user_id", userId); // 사용자 ID 추가
+        formData.append("face_image", selectedFile);
 
         try {
-            const response = await fetch("/face/face-register-photo", {
+            const response = await fetch("/face-register/photo", {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
                 body: formData,
             });
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            if (response.ok) {
                 setMessage("얼굴 등록이 완료되었습니다!");
-                // 성공 시 MaskingSelection으로 이동
-                navigate("/maskingselection");
+
+                // ✅ MyPage에서 온 경우 → 다시 MyPage로 이동
+                if (isFromMyPage) {
+                    navigate("/mypage");
+                } 
+                // ✅ 회원가입 후 최초 등록인 경우 → 마스킹 설정 페이지로 이동
+                else {
+                    navigate("/maskingselection");
+                }
             } else {
-                setMessage(data.message || "얼굴 등록에 실패했습니다.");
+                if (response.status === 400) {
+                    setMessage("이미지가 누락되었습니다.");
+                } else if (response.status === 401) {
+                    alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+                    logout();
+                    navigate("/userlogin");
+                } else {
+                    setMessage(data.message || "얼굴 등록에 실패했습니다.");
+                }
             }
         } catch (error) {
             console.error("API 호출 오류:", error);
-            setMessage("서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+            setMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
         }
     };
 
-    // 실시간 등록 요청
+    // 실시간 얼굴 등록 요청
     const handleRealtimeRegister = async () => {
+        const formData = new FormData();
+        formData.append("face_video", "realtime_video_data");
+
         try {
-            const response = await fetch("/face/face-register-realtime", {
+            const response = await fetch("/face-register/realtime", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: userId }), // 사용자 ID 전송
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData,
             });
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            if (response.ok) {
                 setMessage("실시간 얼굴 등록이 완료되었습니다!");
-                // 성공 시 MaskingSelection으로 이동
-                navigate("/maskingselection");
 
+                // ✅ MyPage에서 실행된 경우 → 다시 MyPage로 이동
+                if (isFromMyPage) {
+                    navigate("/mypage");
+                } 
+                // ✅ 회원가입 후 최초 등록인 경우 → 마스킹 설정 페이지로 이동
+                else {
+                    navigate("/maskingselection");
+                }
             } else {
-                setMessage(data.message || "실시간 등록에 실패했습니다.");
+                if (response.status === 400) {
+                    setMessage("실시간 영상 데이터가 누락되었습니다.");
+                } else if (response.status === 401) {
+                    alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+                    logout();
+                    navigate("/userlogin");
+                } else {
+                    setMessage(data.message || "실시간 등록에 실패했습니다.");
+                }
             }
         } catch (error) {
             console.error("API 호출 오류:", error);
-            setMessage("서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+            setMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
         }
     };
 
@@ -75,7 +115,6 @@ const FaceRegister = () => {
         <div className="face-register-container">
             <h1>얼굴 등록</h1>
 
-            {/* 사진 등록 */}
             <div className="register-section">
                 <h2>사진으로 등록하기</h2>
                 <div className="file-upload">
@@ -86,7 +125,6 @@ const FaceRegister = () => {
                 </div>
             </div>
 
-            {/* 실시간 등록 */}
             <div className="register-section">
                 <h2>실시간 등록</h2>
                 <button onClick={handleRealtimeRegister} className="button">
@@ -94,7 +132,6 @@ const FaceRegister = () => {
                 </button>
             </div>
 
-            {/* 결과 메시지 */}
             {message && <p className="message">{message}</p>}
         </div>
     );

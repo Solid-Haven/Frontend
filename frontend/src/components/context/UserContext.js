@@ -1,30 +1,71 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Context 생성
 const UserContext = createContext();
 
-// Context Provider 생성
 export const UserProvider = ({ children }) => {
-    // user_id를 상태로 관리 (초기값: 로컬 스토리지에서 가져오기)
-    const [userId, setUserId] = useState(() => {
-        return localStorage.getItem("user_id") || null;
-    });
+    const [userId, setUserId] = useState(null);
+    const [token, setToken] = useState(null);
+    const [userInfo, setUserInfo] = useState(null);
 
-    // user_id가 변경되면 로컬 스토리지에 저장
+    // 페이지 새로고침 시 localStorage에서 JWT 토큰 & userId 불러오기
     useEffect(() => {
-        if (userId) {
-            localStorage.setItem("user_id", userId); // 로컬 스토리지에 저장
-        } else {
-            localStorage.removeItem("user_id"); // 로그아웃 시 삭제
+        const storedToken = localStorage.getItem("authToken");
+        const storedUserId = localStorage.getItem("userId");
+
+        if (storedToken && storedUserId) {
+            setToken(storedToken);
+            setUserId(storedUserId);
+            fetchUserData(storedToken); // 자동으로 유저 정보 가져오기
         }
-    }, [userId]);
+    }, []);
+
+    // 백엔드에서 유저 정보 가져오는 함수
+    const fetchUserData = async (token) => {
+        try {
+            const response = await fetch("/users/me", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`, // JWT 토큰 추가
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserInfo(data); // 🔹 유저 정보 Context에 저장
+            } else {
+                console.error("토큰이 만료되었거나 유효하지 않음, 로그아웃 필요");
+                logout();
+            }
+        } catch (error) {
+            console.error("API 호출 오류:", error);
+            logout();
+        }
+    };
+
+    // 로그인 시 토큰 및 유저 정보 저장
+    const login = (newToken, newUserId) => {
+        localStorage.setItem("authToken", newToken);
+        localStorage.setItem("userId", newUserId);
+        setToken(newToken);
+        setUserId(newUserId);
+        fetchUserData(newToken); // 로그인 후 자동으로 유저 정보 가져오기
+    };
+
+    // 로그아웃 시 모든 정보 삭제
+    const logout = () => {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userId");
+        setToken(null);
+        setUserId(null);
+        setUserInfo(null);
+    };
 
     return (
-        <UserContext.Provider value={{ userId, setUserId }}>
+        <UserContext.Provider value={{ userId, token, userInfo, login, logout }}>
             {children}
         </UserContext.Provider>
     );
 };
 
-// Context를 쉽게 사용하도록 커스텀 Hook 제공
 export const useUser = () => useContext(UserContext);

@@ -7,12 +7,12 @@ const UserLogin = () => {
     const [email, setEmail] = useState(""); //
     const [password, setPassword] = useState(""); // 비밀번호 입력 값 이메일 입력 값
     const [errorMessage, setErrorMessage] = useState(""); // 오류 메시지 상태
-    const { setUserId } = useUser(); // Context에서 setUserId 가져오기
+    const { login } = useUser(); // Context에서 login 함수 가져오기
     const navigate = useNavigate(); // 페이지 이동 훅
 
     const handleLogin = async () => {
         try {
-            const response = await fetch("/account/user-login", {
+            const response = await fetch("/users/user-login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -25,19 +25,24 @@ const UserLogin = () => {
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
-                const { user_id, is_face_registered } = data.user; // ID와 상태 받기
-                setUserId(user_id); // Context와 로컬 스토리지에 user_id 저장
+            if (response.ok) {
+                const { token, user_id, is_face_registered } = data; 
 
-    
-                // 상태에 따라 페이지 이동
+                login(token, user_id);
+
                 if (is_face_registered) {
-                    navigate("/dashboard", { state: { userId: user_id } }); // 대시보드로 이동하며 ID 전달
+                    navigate("/dashboard"); // 얼굴 등록 완료 → 대시보드 이동
                 } else {
-                    navigate("/faceregister", { state: { userId: user_id } }); // 얼굴 등록 페이지로 이동
+                    navigate("/faceregister"); // 얼굴 등록 필요 → 얼굴 등록 페이지 이동
                 }
             } else {
-                setErrorMessage(data.message || "로그인에 실패했습니다. 다시 시도해주세요.");
+                if (response.status === 401) {
+                    setErrorMessage("이메일 또는 비밀번호가 일치하지 않습니다.");
+                } else if (response.status === 404) {
+                    setErrorMessage("사용자가 존재하지 않습니다.");
+                } else {
+                    setErrorMessage(data.message || "로그인에 실패했습니다. 다시 시도해주세요.");
+                }
             }
         } catch (error) {
             console.error("API 호출 오류:", error);
@@ -47,7 +52,7 @@ const UserLogin = () => {
 
     const handleRegister = () => {
         // 회원가입 페이지로 이동
-        navigate("/userregister");
+        navigate("/users/register");
     };
 
 
