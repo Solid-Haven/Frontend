@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "../../styles/videoUpload.css";
 import { useUser } from "../../components/context/UserContext";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const VideoUpload = () => {
     const { token } = useUser();
     const [selectedFile, setSelectedFile] = useState(null);
@@ -21,7 +23,7 @@ const VideoUpload = () => {
         formData.append("video_file", selectedFile);
 
         try {
-            const response = await fetch("/videos/upload", {
+            const response = await fetch(`${API_BASE_URL}/videos/upload`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,

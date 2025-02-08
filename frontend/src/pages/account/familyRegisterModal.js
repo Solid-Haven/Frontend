@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../../styles/modal.css";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const FamilyRegisterModal = ({ onClose }) => {
     const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ const FamilyRegisterModal = ({ onClose }) => {
 
     const handleRegister = async () => {
         try {
-            const response = await fetch("/families/register/", {
+            const response = await fetch(`${API_BASE_URL}/families/register/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate} from "react-router-dom"; // useLocation으로 전달받은 state 읽기
 import { useUser } from "../../components/context/UserContext"; // UserContext 사용
 import "../../styles/login.css";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const UserLogin = () => {
     const [email, setEmail] = useState(""); //
@@ -12,7 +13,7 @@ const UserLogin = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch("/users/user-login", {
+            const response = await fetch(`${API_BASE_URL}/users/user-login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

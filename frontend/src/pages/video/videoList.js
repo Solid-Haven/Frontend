@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../components/context/UserContext";
 import "../../styles/videoList.css"; // 스타일 추가
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 const VideoList = () => {
     const { token, userInfo = {} } = useUser(); // 사용자 정보 가져오기
-    // {} 나중에 삭제해보기
     const navigate = useNavigate();
     const [videos, setVideos] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
@@ -32,44 +33,46 @@ const VideoList = () => {
         return grouped;
     };
 
-    // useEffect(() => {
-    //     const fetchVideos = async () => {
-    //         if (!token) {
-    //             setErrorMessage("로그인이 필요합니다.");
-    //             return;
-    //         }
+    // ✅ 주석 처리된 API 호출 부분
+    useEffect(() => {
+        const fetchVideos = async () => {
+            if (!token) {
+                setErrorMessage("로그인이 필요합니다.");
+                return;
+            }
 
-    //         const queryParams = new URLSearchParams();
-    //         queryParams.append("ref", userInfo.family_id ? 1 : 0); // 1: 가족, 0: 개인
-    //         if (userInfo.family_id) {
-    //             queryParams.append("family_id", userInfo.family_id); // 가족 ID 추가
-    //         }
+            const queryParams = new URLSearchParams();
+            queryParams.append("ref", userInfo.family_id ? 1 : 0); // 1: 가족, 0: 개인
+            if (userInfo.family_id) {
+                queryParams.append("family_id", userInfo.family_id); // 가족 ID 추가
+            }
 
-    //         try {
-    //             const response = await fetch(`/videos?${queryParams.toString()}`, {
-    //                 method: "GET",
-    //                 headers: {
-    //                     "Authorization": `Bearer ${token}`,
-    //                 },
-    //             });
+            try {
+                const response = await fetch(`${API_BASE_URL}/videos?${queryParams.toString()}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
 
-    //             const data = await response.json();
+                const data = await response.json();
 
-    //             if (response.ok) {
-    //                 setVideos(data.videos || []);
-    //             } else {
-    //                 setErrorMessage(data.message || "영상 목록을 불러오지 못했습니다.");
-    //             }
-    //         } catch (error) {
-    //             console.error("API 호출 오류:", error);
-    //             setErrorMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
-    //         }
-    //     };
+                if (response.ok) {
+                    setVideos(data.videos || []);
+                } else {
+                    setErrorMessage(data.message || "영상 목록을 불러오지 못했습니다.");
+                }
+            } catch (error) {
+                console.error("API 호출 오류:", error);
+                setErrorMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
+            }
+        };
 
-    //     fetchVideos();
-    // }, [token, userInfo.family_id]);
+        fetchVideos();
+    }, [token, userInfo.family_id]);
 
     // ✅ 백엔드 연결 전 테스트할 경우 아래 주석 해제
+    /*
     useEffect(() => {
         const mockVideos = [
             { id: 1, title: "테스트 영상 1", uploaded_at: "2025-01-19T10:00:00Z" },
@@ -80,6 +83,7 @@ const VideoList = () => {
         ];
         setVideos(mockVideos);
     }, []);
+    */
 
     const groupedVideos = groupVideosByDateAndTime(videos);
 
@@ -110,7 +114,7 @@ const VideoList = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                        ))}
+                                        ))} 
                                 </div>
                             ))}
                     </div>

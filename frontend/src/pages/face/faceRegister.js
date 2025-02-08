@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../components/context/UserContext";
 import "../../styles/faceRegister.css";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const FaceRegister = () => {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -29,7 +30,7 @@ const FaceRegister = () => {
         formData.append("face_image", selectedFile);
 
         try {
-            const response = await fetch("/face-register/photo", {
+            const response = await fetch(`${API_BASE_URL}/face-register/photo/`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -73,7 +74,7 @@ const FaceRegister = () => {
         formData.append("face_video", "realtime_video_data");
 
         try {
-            const response = await fetch("/face-register/realtime", {
+            const response = await fetch(`${API_BASE_URL}/face-register/realtime/`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../components/context/UserContext"; // Context 사용
 import "../../styles/maskingSelection.css";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const MaskingSelection = () => {
     const [faceMasking, setFaceMasking] = useState(false);  // 얼굴 마스킹 여부
@@ -12,7 +13,7 @@ const MaskingSelection = () => {
     // ✅ 마스킹 설정 저장 요청
     const handleSaveSelection = async () => {
         try {
-            const response = await fetch("/masking-settings", { // ✅ API 엔드포인트 변경
+            const response = await fetch(`${API_BASE_URL}masking-settings/`, { // ✅ API 엔드포인트 변경
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

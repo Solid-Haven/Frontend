@@ -3,44 +3,48 @@ import { useParams } from "react-router-dom";
 import { useUser } from "../../components/context/UserContext";
 import "../../styles/videoPlayer.css"; // 스타일 추가
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 const VideoPlayer = () => {
     const { videoId } = useParams(); // URL에서 videoId 가져오기
     const { token } = useUser();
     const [videoData, setVideoData] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
-    // useEffect(() => {
-    //     const fetchVideo = async () => {
-    //         if (!token) {
-    //             setErrorMessage("로그인이 필요합니다.");
-    //             return;
-    //         }
+    // ✅ API 연결 코드 (주석 해제 후 사용 가능)
+    useEffect(() => {
+        const fetchVideo = async () => {
+            if (!token) {
+                setErrorMessage("로그인이 필요합니다.");
+                return;
+            }
 
-    //         try {
-    //             const response = await fetch(`/videos/${videoId}`, {
-    //                 method: "GET",
-    //                 headers: {
-    //                     "Authorization": `Bearer ${token}`,
-    //                 },
-    //             });
+            try {
+                const response = await fetch(`${API_BASE_URL}/videos/${videoId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
 
-    //             const data = await response.json();
+                const data = await response.json();
 
-    //             if (response.ok) {
-    //                 setVideoData(data.data);
-    //             } else {
-    //                 setErrorMessage(data.message || "영상을 불러오지 못했습니다.");
-    //             }
-    //         } catch (error) {
-    //             console.error("API 호출 오류:", error);
-    //             setErrorMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
-    //         }
-    //     };
+                if (response.ok) {
+                    setVideoData(data.data);
+                } else {
+                    setErrorMessage(data.message || "영상을 불러오지 못했습니다.");
+                }
+            } catch (error) {
+                console.error("API 호출 오류:", error);
+                setErrorMessage("서버와 연결할 수 없습니다. 다시 시도해주세요.");
+            }
+        };
 
-    //     fetchVideo();
-    // }, [videoId, token]);
+        fetchVideo();
+    }, [videoId, token]);
 
-    // ✅ 백엔드 연결 전 테스트할 경우 아래 주석 해제
+    // ✅ 테스트용 목 데이터를 사용하는 경우
+    /*
     useEffect(() => {
         const mockVideos = [
             {
@@ -77,13 +81,14 @@ const VideoPlayer = () => {
 
         // videoId에 해당하는 Mock 데이터 가져오기
         const foundVideo = mockVideos.find(video => video.video_id === videoId);
-        
+
         if (foundVideo) {
             setVideoData(foundVideo);
         } else {
             setErrorMessage("해당 영상을 찾을 수 없습니다.");
         }
     }, [videoId]);
+    */
 
     return (
         <div className="video-player-container">
