@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const UserRegister = () => {
-    const [username, setUsername] = useState(""); // 사용자 이름
+    const [name, setName] = useState(""); // 사용자 이름
     const [email, setEmail] = useState(""); // 사용자 이메일
     const [password, setPassword] = useState(""); // 사용자 비밀번호
     const [errorMessage, setErrorMessage] = useState(""); // 오류 메시지
@@ -11,13 +11,13 @@ const UserRegister = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}users/register/`, {
+            const response = await fetch(`http://43.203.1.187/users/register/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    username,
+                    name,
                     email,
                     password
                 }), // JSON 형식으로 데이터 전송
@@ -30,12 +30,12 @@ const UserRegister = () => {
                 navigate("/userlogin"); 
             } else {
                 if (response.status === 400) {
-                    if (data.message.includes("이미 존재하는 사용자")) {
+                    if (data?.error?.email && Array.isArray(data.error.email) && data.error.email.length > 0) {
+                        setErrorMessage(data.error.email[0]); // 서버에서 응답된 에러 메시지 표시
+                    } else if (data.message && data.message.includes("이미 존재하는 사용자")) {
                         setErrorMessage("이미 가입된 이메일입니다.");
-                    } else if (data.message.includes("유효하지 않은 이메일 형식")) {
-                        setErrorMessage("올바른 이메일 형식이 아닙니다.");
                     } else {
-                        setErrorMessage(data.message || "회원가입에 실패했습니다.");
+                        setErrorMessage(data.message || "요청이 올바르지 않습니다.");
                     }
                 } else {
                     setErrorMessage(data.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
@@ -52,13 +52,13 @@ const UserRegister = () => {
             <h1>사용자 회원가입</h1>
 
             <div className="form-group">
-                <label htmlFor="username">사용자 이름</label>
+                <label htmlFor="name">사용자 이름</label>
                 <input
                     type="text"
-                    id="username"
+                    id="name"
                     placeholder="사용자 이름을 입력하세요"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                 />
             </div>
             <div className="form-group">

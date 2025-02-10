@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../components/context/UserContext";
 import "../../styles/faceRegister.css";
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const FaceRegister = () => {
@@ -112,6 +113,11 @@ const FaceRegister = () => {
         }
     };
 
+    // ✅ 대시보드로 이동 버튼 핸들러
+    const handleGoToDashboard = () => {
+        navigate("/dashboard");
+    };
+
     return (
         <div className="face-register-container">
             <h1>얼굴 등록</h1>
@@ -130,6 +136,13 @@ const FaceRegister = () => {
                 <h2>실시간 등록</h2>
                 <button onClick={handleRealtimeRegister} className="button">
                     실시간 얼굴 등록 시작
+                </button>
+            </div>
+
+            <div className="button-group">
+                {/* ✅ 대시보드로 이동하는 버튼 추가 */}
+                <button onClick={handleGoToDashboard} className="button dashboard-button">
+                    대시보드로 이동
                 </button>
             </div>
 

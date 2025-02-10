@@ -4,11 +4,11 @@ import "../../styles/dashboard.css"; // 스타일 적용 (필요 시)
 import { useUser } from "../../components/context/UserContext"; // UserContext 사용
 
 const Dashboard = () => {
-    const { userId, setUserId } = useUser(); // Context에서 user_id 가져오기
+    const { userInfo, logout } = useUser(); // Context에서 user_id 가져오기
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        setUserId(null); // Context 초기화
+        logout();  // 로그아웃 처리
         navigate("/"); // 메인 페이지로 이동
     };
 
@@ -16,6 +16,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container">
             <h1>대시보드</h1>
+            <p>안녕하세요, {userInfo?.name || "사용자"}님!</p>
             <div className="button-group">
                 <button onClick={() => navigate("/videodashboard")} className="button">
                     영상 관리

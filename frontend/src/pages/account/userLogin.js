@@ -13,7 +13,7 @@ const UserLogin = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/users/user-login/`, {
+            const response = await fetch(`${API_BASE_URL}/users/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -27,9 +27,9 @@ const UserLogin = () => {
             const data = await response.json();
 
             if (response.ok) {
-                const { token, user_id, is_face_registered } = data; 
+                const { token, user, is_face_registered } = data; 
 
-                login(token, user_id);
+                login(token, user);
 
                 if (is_face_registered) {
                     navigate("/dashboard"); // 얼굴 등록 완료 → 대시보드 이동
@@ -53,7 +53,7 @@ const UserLogin = () => {
 
     const handleRegister = () => {
         // 회원가입 페이지로 이동
-        navigate("/users/register");
+        navigate("/userregister");
     };
 
 
